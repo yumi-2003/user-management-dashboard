@@ -1,6 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
+import type { User } from "../types/user.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -8,9 +9,6 @@ const __dirname = path.dirname(__filename);
 const filePath = path.join(__dirname, "../../data/users.json");
 const dataDir = path.join(__dirname, "../../data");
 
-/**
- * Ensures the data directory exists
- */
 const ensureDataDirectory = async () => {
   try {
     await fs.access(dataDir);
@@ -19,53 +17,36 @@ const ensureDataDirectory = async () => {
   }
 };
 
-/**
- * Reads users from JSON file
- * @returns Array of users
- */
-export const readUsers = async () => {
+const parseUsersJson = (raw: string): User[] => {
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as User[]) : [];
+  } catch (parseError) {
+    console.error("Invalid JSON in users file, returning empty array:", parseError);
+    return [];
+  }
+};
+
+export const readUsers = async (): Promise<User[]> => {
   try {
     await ensureDataDirectory();
     const data = await fs.readFile(filePath, "utf-8");
+    return parseUsersJson(data);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+      return [];
+    }
 
-    try {
-      const parsed = JSON.parse(data);
-      // Ensure it's an array
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (parseError) {
-      console.error(
-        "Invalid JSON in users file, returning empty array:",
-        parseError,
-      );
-      // Return empty array for corrupted JSON
-      return [];
-    }
-  } catch (error: any) {
-    if (error.code === "ENOENT") {
-      // File doesn't exist, return empty array
-      console.log("Users file doesn't exist, returning empty array");
-      return [];
-    }
     console.error("Error reading users file:", error);
     throw new Error("Failed to read users data");
   }
 };
 
-/**
- * Writes users to JSON file
- * @param data - Users data to write
- */
-export const writeUsers = async (data: any) => {
+export const writeUsers = async (users: User[]): Promise<void> => {
   try {
     await ensureDataDirectory();
-
-    // Validate data is an array
-    if (!Array.isArray(data)) {
-      throw new Error("Users data must be an array");
-    }
-
-    await fs.writeFile(filePath, JSON.stringify(data, null, 2));
-  } catch (error: any) {
+    await fs.writeFile(filePath, `${JSON.stringify(users, null, 2)}\n`);
+  } catch (error) {
     console.error("Error writing users file:", error);
     throw new Error("Failed to save users data");
   }
