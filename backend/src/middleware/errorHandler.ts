@@ -1,8 +1,29 @@
-import { Request, Response, NextFunction } from "express";
+import type { NextFunction, Request, RequestHandler, Response } from "express";
 
-export interface AppError extends Error {
+export type AppError = Error & {
   statusCode?: number;
-}
+};
+
+type AsyncRequestHandler = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => Promise<unknown>;
+
+const DEFAULT_ERROR_MESSAGE = "Something went wrong";
+
+const inferStatusCode = (err: AppError): number => {
+  if (err.statusCode) {
+    return err.statusCode;
+  }
+
+  const message = err.message.toLowerCase();
+  if (message.includes("not found")) return 404;
+  if (message.includes("already exists")) return 400;
+  if (message.includes("validation")) return 400;
+
+  return 500;
+};
 
 /**
  * Simple global error handler for Express
@@ -12,33 +33,16 @@ export const errorHandler = (
   err: AppError,
   req: Request,
   res: Response,
-  next: NextFunction,
+  _next: NextFunction,
 ): void => {
-  // Log the error for debugging
   console.error("Error:", err.message);
 
-  // Default error values
-  let statusCode = err.statusCode || 500;
-  let message = err.message || "Something went wrong";
+  const statusCode = inferStatusCode(err);
+  const message = err.message || DEFAULT_ERROR_MESSAGE;
 
-  // Handle common error types
-  if (err.message.includes("not found")) {
-    statusCode = 404;
-  }
-
-  if (err.message.includes("already exists")) {
-    statusCode = 400;
-  }
-
-  if (err.message.includes("Validation")) {
-    statusCode = 400;
-  }
-
-  // Send error response
   res.status(statusCode).json({
     success: false,
-    message: message,
-    // Show error details only in development
+    message,
     ...(process.env.NODE_ENV === "development" && {
       stack: err.stack,
       url: req.url,
@@ -50,7 +54,7 @@ export const errorHandler = (
  * Creates a simple error object
  */
 export const createError = (message: string, statusCode: number): AppError => {
-  const error: AppError = new Error(message);
+  const error = new Error(message) as AppError;
   error.statusCode = statusCode;
   return error;
 };
@@ -59,9 +63,9 @@ export const createError = (message: string, statusCode: number): AppError => {
  * Wraps async functions to catch errors automatically
  * This prevents from using try-catch in every route handler
  */
-export const asyncHandler = (fn: Function) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
+export const asyncHandler = (handler: AsyncRequestHandler): RequestHandler => {
+  return (req, res, next) => {
+    void Promise.resolve(handler(req, res, next)).catch(next);
   };
 };
 
@@ -70,9 +74,8 @@ export const asyncHandler = (fn: Function) => {
  */
 export const notFoundHandler = (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction,
 ): void => {
-  const error = createError(`Route ${req.originalUrl} not found`, 404);
-  next(error);
+  next(createError(`Route ${req.originalUrl} not found`, 404));
 };
