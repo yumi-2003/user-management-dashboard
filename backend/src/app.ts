@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler.js";
 import userRoutes from "./routes/userRoutes.js";
+import { config } from "./config/env.js";
 
 const app = express();
 
@@ -11,7 +12,7 @@ app.set("trust proxy", 1);
 // Middleware
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: config.clientUrl,
     credentials: true,
   }),
 );

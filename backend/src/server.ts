@@ -1,12 +1,10 @@
-import "dotenv/config";
 import app from "./app.js";
+import { config } from "./config/env.js";
 
-const PORT = parseInt(process.env.PORT || "5000", 10);
-
-const server = app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || "development"}`);
-  console.log(`Users API: http://localhost:${PORT}/api/users`);
+const server = app.listen(config.port, () => {
+  console.log(`Server running on port ${config.port}`);
+  console.log(`Environment: ${config.nodeEnv}`);
+  console.log(`Users API: http://localhost:${config.port}/api/users`);
 });
 
 export default server;
