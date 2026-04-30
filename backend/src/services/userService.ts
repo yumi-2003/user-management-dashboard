@@ -1,141 +1,177 @@
-import { readUsers, writeUsers } from "../utils/fileHandler.js";
-import { User } from "../types/user.js";
-import { userSchema } from "../schemas/user.schema.js";
+import type { User } from "../types/user.js";
+import { createError } from "../middleware/errorHandler.js";
 import { generateId } from "../utils/generateId.js";
+import { userSchema } from "../schemas/user.schema.js";
+import { readUsers, writeUsers } from "../utils/fileHandler.js";
 
 export type CreateUserData = Omit<User, "id" | "createdAt" | "updatedAt">;
 export type UpdateUserData = Partial<
   Omit<User, "id" | "createdAt" | "updatedAt">
 >;
 
-const matchesSearch = (user: User, query: string) => {
-  const normalizedQuery = query.trim().toLowerCase();
+type GetUsersOptions = {
+  searchQuery?: string;
+  page?: number;
+  limit?: number;
+};
 
-  return [user.name, user.username, user.email].some((value) =>
-    value.toLowerCase().includes(normalizedQuery),
+export type UsersPagination = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+};
+
+export type PaginatedUsersResult = {
+  data: User[];
+  pagination: UsersPagination;
+};
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 100;
+
+const normalizeEmail = (value: string) => value.trim().toLowerCase();
+
+const normalizeSearchQuery = (value?: string) => value?.trim().toLowerCase() ?? "";
+
+const matchesSearch = (user: User, query: string): boolean => {
+  return [user.name, user.username, user.email].some((fieldValue) =>
+    fieldValue.toLowerCase().includes(query),
   );
 };
 
-export const getAllUsers = async (searchQuery?: string) => {
-  try {
-    const users = await readUsers();
+const toPositiveInt = (value: number | undefined, fallback: number) => {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return fallback;
+  }
 
-    if (!searchQuery || !searchQuery.toString().trim()) {
-      return users;
+  const normalized = Math.trunc(value);
+  return normalized > 0 ? normalized : fallback;
+};
+
+const getUserIndexById = (users: User[], id: string): number => {
+  return users.findIndex((user) => user.id === id);
+};
+
+const getExistingUserById = (users: User[], id: string): User => {
+  const foundUser = users.find((user) => user.id === id);
+  if (!foundUser) {
+    throw createError(`User with id ${id} not found`, 404);
+  }
+  return foundUser;
+};
+
+const assertUniqueEmail = (users: User[], email: string, excludedUserId?: string): void => {
+  const normalizedTargetEmail = normalizeEmail(email);
+  const emailExists = users.some((user) => {
+    if (excludedUserId && user.id === excludedUserId) {
+      return false;
     }
+    return normalizeEmail(user.email) === normalizedTargetEmail;
+  });
 
-    return users.filter((user) => matchesSearch(user, searchQuery.toString()));
-  } catch (error) {
-    console.error("Error fetching all users:", error);
-    throw new Error("Failed to retrieve users data");
+  if (emailExists) {
+    throw createError("User with this email already exists", 400);
   }
 };
 
-//get user by id
-export const getUserbyId = async (id: string) => {
-  try {
-    const users: User[] = await readUsers();
-    const user = users.find((user) => user.id === id);
+export const getAllUsers = async (
+  options: GetUsersOptions = {},
+): Promise<PaginatedUsersResult> => {
+  const { searchQuery, page, limit } = options;
+  const normalizedLimit = Math.min(toPositiveInt(limit, DEFAULT_LIMIT), MAX_LIMIT);
+  const normalizedPage = toPositiveInt(page, DEFAULT_PAGE);
+  const normalizedSearchQuery = normalizeSearchQuery(searchQuery);
 
-    if (!user) {
-      throw new Error(`User with id ${id} not found`);
-    }
+  const users = await readUsers();
+  const filteredUsers = normalizedSearchQuery
+    ? users.filter((user) => matchesSearch(user, normalizedSearchQuery))
+    : users;
 
-    return user;
-  } catch (error) {
-    console.error(`Error fetching user with id ${id}:`, error);
-    throw error;
-  }
+  const total = filteredUsers.length;
+  const totalPages = total === 0 ? 1 : Math.ceil(total / normalizedLimit);
+  const currentPage = Math.min(normalizedPage, totalPages);
+  const startIndex = (currentPage - 1) * normalizedLimit;
+  const paginatedUsers = filteredUsers.slice(startIndex, startIndex + normalizedLimit);
+
+  return {
+    data: paginatedUsers,
+    pagination: {
+      page: currentPage,
+      limit: normalizedLimit,
+      total,
+      totalPages,
+      hasNextPage: currentPage < totalPages,
+      hasPrevPage: currentPage > 1,
+    },
+  };
 };
 
-//create user
-export const createUser = async (userData: CreateUserData) => {
-  try {
-    // Validate user data with Zod schema
-    const validatedData = userSchema.parse(userData);
-
-    const users: User[] = await readUsers();
-
-    // Check if user with same email already exists
-    const userExist = users.find((user) => user.email === validatedData.email);
-    if (userExist) {
-      throw new Error("User with this email already exists");
-    }
-
-    const timestamp = new Date().toISOString();
-    const newUser: User = {
-      ...validatedData,
-      id: generateId(), // Generate unique ID
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    };
-
-    users.push(newUser);
-    await writeUsers(users);
-
-    return newUser;
-  } catch (error) {
-    console.error("Error creating user:", error);
-    throw error;
-  }
+export const getUserById = async (id: string): Promise<User> => {
+  const users = await readUsers();
+  return getExistingUserById(users, id);
 };
 
-//update user
-export const updateUser = async (id: string, updateData: UpdateUserData) => {
-  try {
-    const users: User[] = await readUsers();
-    const userIndex = users.findIndex((user) => user.id === id);
+export const createUser = async (userData: CreateUserData): Promise<User> => {
+  const validatedData = userSchema.parse(userData);
+  const users = await readUsers();
 
-    if (userIndex === -1) {
-      throw new Error(`User with id ${id} not found`);
-    }
+  assertUniqueEmail(users, validatedData.email);
 
-    // Validate update data
-    const validatedUpdate = userSchema.partial().parse(updateData);
+  const timestamp = new Date().toISOString();
+  const newUser: User = {
+    ...validatedData,
+    id: generateId(),
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  };
 
-    // Check if email is being updated and if it conflicts
-    if (
-      validatedUpdate.email &&
-      validatedUpdate.email !== users[userIndex].email
-    ) {
-      const emailExists = users.some(
-        (user) => user.email === validatedUpdate.email && user.id !== id,
-      );
-      if (emailExists) {
-        throw new Error("Email already exists for another user");
-      }
-    }
+  users.push(newUser);
+  await writeUsers(users);
 
-    users[userIndex] = {
-      ...users[userIndex],
-      ...validatedUpdate,
-      updatedAt: new Date().toISOString(),
-    };
-    await writeUsers(users);
-
-    return users[userIndex];
-  } catch (error) {
-    console.error(`Error updating user with id ${id}:`, error);
-    throw error;
-  }
+  return newUser;
 };
 
-//delete user
-export const deleteUser = async (id: string) => {
-  try {
-    const users: User[] = await readUsers();
-    const userIndex = users.findIndex((user) => user.id === id);
+export const updateUser = async (
+  id: string,
+  updateData: UpdateUserData,
+): Promise<User> => {
+  const users = await readUsers();
+  const userIndex = getUserIndexById(users, id);
 
-    if (userIndex === -1) {
-      throw new Error(`User with id ${id} not found`);
-    }
-
-    const deletedUser = users.splice(userIndex, 1)[0];
-    await writeUsers(users);
-
-    return deletedUser;
-  } catch (error) {
-    console.error(`Error deleting user with id ${id}:`, error);
-    throw error;
+  if (userIndex === -1) {
+    throw createError(`User with id ${id} not found`, 404);
   }
+
+  const validatedUpdate = userSchema.partial().parse(updateData);
+
+  if (validatedUpdate.email) {
+    assertUniqueEmail(users, validatedUpdate.email, id);
+  }
+
+  users[userIndex] = {
+    ...users[userIndex],
+    ...validatedUpdate,
+    updatedAt: new Date().toISOString(),
+  };
+  await writeUsers(users);
+
+  return users[userIndex];
+};
+
+export const deleteUser = async (id: string): Promise<User> => {
+  const users = await readUsers();
+  const userIndex = getUserIndexById(users, id);
+
+  if (userIndex === -1) {
+    throw createError(`User with id ${id} not found`, 404);
+  }
+
+  const [deletedUser] = users.splice(userIndex, 1);
+  await writeUsers(users);
+
+  return deletedUser;
 };

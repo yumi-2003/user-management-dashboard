@@ -1,43 +1,62 @@
-import { Request, Response, NextFunction } from "express";
+import type { Request } from "express";
 import { asyncHandler, createError } from "../middleware/errorHandler.js";
 import {
-  getAllUsers,
-  getUserbyId,
   createUser,
-  updateUser,
   deleteUser,
+  getAllUsers,
+  getUserById,
+  updateUser,
 } from "../services/userService.js";
 
-// Get all users
-// GET /api/users
-export const getUsers = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { search } = req.query;
-    const searchQuery = Array.isArray(search) ? search[0] : search;
+const getSingleQueryValue = (value: unknown): string | undefined => {
+  if (Array.isArray(value)) {
+    return typeof value[0] === "string" ? value[0] : undefined;
+  }
+  return typeof value === "string" ? value : undefined;
+};
 
-    const users = await getAllUsers(
-      typeof searchQuery === "string" ? searchQuery : undefined,
-    );
+const parsePositiveIntegerQuery = (value: string | undefined, fieldName: string) => {
+  if (value === undefined) return undefined;
+
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isInteger(parsed) || parsed < 1) {
+    throw createError(`${fieldName} must be a positive integer`, 400);
+  }
+
+  return parsed;
+};
+
+const getRouteId = (req: Request): string => {
+  const { id } = req.params;
+  if (!id || Array.isArray(id)) {
+    throw createError("Valid user ID is required", 400);
+  }
+  return id;
+};
+
+export const getUsers = asyncHandler(
+  async (req, res) => {
+    const { search, page, limit } = req.query;
+
+    const usersResult = await getAllUsers({
+      searchQuery: getSingleQueryValue(search),
+      page: parsePositiveIntegerQuery(getSingleQueryValue(page), "page"),
+      limit: parsePositiveIntegerQuery(getSingleQueryValue(limit), "limit"),
+    });
 
     res.status(200).json({
       success: true,
-      count: users.length,
-      data: users,
+      count: usersResult.data.length,
+      total: usersResult.pagination.total,
+      pagination: usersResult.pagination,
+      data: usersResult.data,
     });
   },
 );
 
-//Get single user by ID
-//GET /api/users/:id
 export const getUser = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params;
-
-    if (!id || Array.isArray(id)) {
-      return next(createError("Valid user ID is required", 400));
-    }
-
-    const user = await getUserbyId(id);
+  async (req, res) => {
+    const user = await getUserById(getRouteId(req));
 
     res.status(200).json({
       success: true,
@@ -46,14 +65,12 @@ export const getUser = asyncHandler(
   },
 );
 
-//Create new user
-// POST /api/users
 export const createUserHandler = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req, res) => {
     const userData = req.body;
 
     if (!userData || Object.keys(userData).length === 0) {
-      return next(createError("User data is required", 400));
+      throw createError("User data is required", 400);
     }
 
     const newUser = await createUser(userData);
@@ -66,22 +83,15 @@ export const createUserHandler = asyncHandler(
   },
 );
 
-// Update user
-//PUT /api/users/:id
 export const updateUserHandler = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params;
+  async (req, res) => {
     const updateData = req.body;
 
-    if (!id || Array.isArray(id)) {
-      return next(createError("Valid user ID is required", 400));
-    }
-
     if (!updateData || Object.keys(updateData).length === 0) {
-      return next(createError("Update data is required", 400));
+      throw createError("Update data is required", 400);
     }
 
-    const updatedUser = await updateUser(id, updateData);
+    const updatedUser = await updateUser(getRouteId(req), updateData);
 
     res.status(200).json({
       success: true,
@@ -90,17 +100,10 @@ export const updateUserHandler = asyncHandler(
     });
   },
 );
-//Delete user
-//DELETE /api/users/:id
+
 export const deleteUserHandler = asyncHandler(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { id } = req.params;
-
-    if (!id || Array.isArray(id)) {
-      return next(createError("Valid user ID is required", 400));
-    }
-
-    const deletedUser = await deleteUser(id);
+  async (req, res) => {
+    const deletedUser = await deleteUser(getRouteId(req));
 
     res.status(200).json({
       success: true,
@@ -109,30 +112,3 @@ export const deleteUserHandler = asyncHandler(
     });
   },
 );
-
-/**
- *  manual error handling (alternative to asyncHandler)
- */
-export const getUserManual = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    const { id } = req.params;
-
-    if (!id || Array.isArray(id)) {
-      return next(createError("Valid user ID is required", 400));
-    }
-
-    const user = await getUserbyId(id);
-
-    res.status(200).json({
-      success: true,
-      data: user,
-    });
-  } catch (error) {
-    // Error from error handler
-    next(error);
-  }
-};
