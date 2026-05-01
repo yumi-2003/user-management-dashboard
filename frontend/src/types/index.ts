@@ -7,5 +7,18 @@ export interface User {
   updatedAt?: string;
 }
 
-//omit id cause backend will generate it later
 export type UserInput = Omit<User, "id">;
+
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
+export interface UsersPageData {
+  data: User[];
+  pagination: PaginationMeta;
+}
