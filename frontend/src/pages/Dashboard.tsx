@@ -231,7 +231,7 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Reusable Modal for Create/Edit */}
+      {/* Modal for Create/Edit */}
       {modalMode && (
         <Modal
           title={modalCopy?.title}
