@@ -1,90 +1,82 @@
 [
-    {
-        "name":  "Min Khant",
-        "username":  "minkhant",
-        "email":  "minkhant@gmail.com",
-        "id":  "ccb6136498bdacaf",
-        "createdAt":  "2026-04-30T18:00:39.457Z",
-        "updatedAt":  "2026-04-30T18:00:39.457Z"
-    },
-    {
-        "name":  "Alice Johnson",
-        "username":  "alice.johnson",
-        "email":  "alice.johnson@example.com",
-        "id":  "u100000000000001",
-        "createdAt":  "2026-05-01T08:10:00.000Z",
-        "updatedAt":  "2026-05-01T08:10:00.000Z"
-    },
-    {
-        "name":  "Bob Smith",
-        "username":  "bob.smith",
-        "email":  "bob.smith@example.com",
-        "id":  "u100000000000002",
-        "createdAt":  "2026-05-01T08:11:00.000Z",
-        "updatedAt":  "2026-05-01T08:11:00.000Z"
-    },
-    {
-        "name":  "Carol Davis",
-        "username":  "carol.davis",
-        "email":  "carol.davis@example.com",
-        "id":  "u100000000000003",
-        "createdAt":  "2026-05-01T08:12:00.000Z",
-        "updatedAt":  "2026-05-01T08:12:00.000Z"
-    },
-    {
-        "name":  "David Wilson",
-        "username":  "david.wilson",
-        "email":  "david.wilson@example.com",
-        "id":  "u100000000000004",
-        "createdAt":  "2026-05-01T08:13:00.000Z",
-        "updatedAt":  "2026-05-01T08:13:00.000Z"
-    },
-    {
-        "name":  "Emma Brown",
-        "username":  "emma.brown",
-        "email":  "emma.brown@example.com",
-        "id":  "u100000000000005",
-        "createdAt":  "2026-05-01T08:14:00.000Z",
-        "updatedAt":  "2026-05-01T08:14:00.000Z"
-    },
-    {
-        "name":  "Frank Miller",
-        "username":  "frank.miller",
-        "email":  "frank.miller@example.com",
-        "id":  "u100000000000006",
-        "createdAt":  "2026-05-01T08:15:00.000Z",
-        "updatedAt":  "2026-05-01T08:15:00.000Z"
-    },
-    {
-        "name":  "Grace Lee",
-        "username":  "grace.lee",
-        "email":  "grace.lee@example.com",
-        "id":  "u100000000000007",
-        "createdAt":  "2026-05-01T08:16:00.000Z",
-        "updatedAt":  "2026-05-01T08:16:00.000Z"
-    },
-    {
-        "name":  "Henry Taylor",
-        "username":  "henry.taylor",
-        "email":  "henry.taylor@example.com",
-        "id":  "u100000000000008",
-        "createdAt":  "2026-05-01T08:17:00.000Z",
-        "updatedAt":  "2026-05-01T08:17:00.000Z"
-    },
-    {
-        "name":  "Iris Chen",
-        "username":  "iris.chen",
-        "email":  "iris.chen@example.com",
-        "id":  "u100000000000009",
-        "createdAt":  "2026-05-01T08:18:00.000Z",
-        "updatedAt":  "2026-05-01T08:18:00.000Z"
-    },
-    {
-        "name":  "Jack Anderson",
-        "username":  "jack.anderson",
-        "email":  "jack.anderson@example.com",
-        "id":  "u100000000000010",
-        "createdAt":  "2026-05-01T08:19:00.000Z",
-        "updatedAt":  "2026-05-01T08:19:00.000Z"
-    }
+  {
+    "name": "Min Khant",
+    "username": "minkhant",
+    "email": "minkhant@gmail.com",
+    "id": "a82af0ac3a43a2eb",
+    "createdAt": "2026-05-01T07:33:53.796Z",
+    "updatedAt": "2026-05-01T07:33:53.796Z"
+  },
+  {
+    "name": "Swar Swar",
+    "username": "wukyii",
+    "email": "swarswar@gmail.com",
+    "id": "a258d1badabfe3f8",
+    "createdAt": "2026-05-01T07:50:36.069Z",
+    "updatedAt": "2026-05-01T07:50:46.129Z"
+  },
+  {
+    "name": "Aung Ko",
+    "username": "aungko",
+    "email": "aungko@gmail.com",
+    "id": "c13b8a9f0e72d541",
+    "createdAt": "2026-05-01T08:20:10.000Z",
+    "updatedAt": "2026-05-01T08:20:10.000Z"
+  },
+  {
+    "name": "Nandar Hlaing",
+    "username": "nandarh",
+    "email": "nandar.hlaing@gmail.com",
+    "id": "d7a2f48cb9501e36",
+    "createdAt": "2026-05-01T08:21:34.000Z",
+    "updatedAt": "2026-05-01T08:21:34.000Z"
+  },
+  {
+    "name": "Thiha Win",
+    "username": "thihawin",
+    "email": "thiha.win@gmail.com",
+    "id": "ef5c12a9473db820",
+    "createdAt": "2026-05-01T08:22:47.000Z",
+    "updatedAt": "2026-05-01T08:22:47.000Z"
+  },
+  {
+    "name": "Moe Thandar",
+    "username": "moethandar",
+    "email": "moe.thandar@gmail.com",
+    "id": "9b4d7ef31c8a2056",
+    "createdAt": "2026-05-01T08:24:03.000Z",
+    "updatedAt": "2026-05-01T08:24:03.000Z"
+  },
+  {
+    "name": "Kyaw Zin",
+    "username": "kyawzin",
+    "email": "kyaw.zin@gmail.com",
+    "id": "4fa8c39de1276b50",
+    "createdAt": "2026-05-01T08:25:19.000Z",
+    "updatedAt": "2026-05-01T08:25:19.000Z"
+  },
+  {
+    "name": "Ei Mon",
+    "username": "eimon",
+    "email": "ei.mon@gmail.com",
+    "id": "18cdab764e903f2b",
+    "createdAt": "2026-05-01T08:26:41.000Z",
+    "updatedAt": "2026-05-01T08:26:41.000Z"
+  },
+  {
+    "name": "Zaw Lin",
+    "username": "zawlin",
+    "email": "zaw.lin@gmail.com",
+    "id": "b6021d9fa37ce854",
+    "createdAt": "2026-05-01T08:27:58.000Z",
+    "updatedAt": "2026-05-01T08:27:58.000Z"
+  },
+  {
+    "name": "Hnin Wai",
+    "username": "hninwai",
+    "email": "hnin.wai@gmail.com",
+    "id": "73ea915dc4b8f026",
+    "createdAt": "2026-05-01T08:29:12.000Z",
+    "updatedAt": "2026-05-01T08:29:12.000Z"
+  }
 ]
