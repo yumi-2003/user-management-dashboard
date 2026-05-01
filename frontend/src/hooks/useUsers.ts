@@ -1,10 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import * as userService from "../services/userService";
 import type { PaginationMeta, User, UserInput } from "../types";
-
-function getErrMsg(err: unknown) {
-  return err instanceof Error ? err.message : String(err);
-}
+import { getErrMsg, toClientErrorMessage } from "../utils/errorMessage";
 
 const DEFAULT_LIMIT = 10;
 const SEARCH_DEBOUNCE_MS = 350;
@@ -87,8 +84,8 @@ export const useUsers = () => {
       refresh();
       return created;
     } catch (err) {
-      setError(getErrMsg(err) || "Failed to create user");
-      throw err;
+      const message = toClientErrorMessage(err, "Failed to create user");
+      throw new Error(message);
     }
   };
 
@@ -98,8 +95,8 @@ export const useUsers = () => {
       refresh();
       return updated;
     } catch (err) {
-      setError(getErrMsg(err) || "Failed to update user");
-      throw err;
+      const message = toClientErrorMessage(err, "Failed to update user");
+      throw new Error(message);
     }
   };
 
