@@ -1,11 +1,31 @@
-import React, { forwardRef } from "react";
+import { forwardRef } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "outline" | "danger" | "ghost";
   isLoading?: boolean;
   loadingText?: string;
-  leftIcon?: React.ReactNode;
+  leftIcon?: ReactNode;
 }
+
+const baseStyles =
+  "flex items-center justify-center gap-2 rounded-lg px-4 py-2 font-medium transition-all active:scale-95 disabled:pointer-events-none disabled:opacity-50";
+
+const variantStyles: Record<NonNullable<ButtonProps["variant"]>, string> = {
+  primary: "bg-black text-white hover:bg-gray-800 dark:bg-blue-600 dark:hover:bg-blue-500",
+  outline:
+    "border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800",
+  danger: "bg-red-600 text-white hover:bg-red-700",
+  ghost:
+    "bg-transparent text-gray-500 hover:bg-gray-100 dark:text-slate-400 dark:hover:bg-slate-800",
+};
+
+const spinnerVariantStyles: Record<NonNullable<ButtonProps["variant"]>, string> = {
+  primary: "border-white/70",
+  danger: "border-white/70",
+  outline: "border-slate-400 dark:border-slate-500",
+  ghost: "border-slate-400 dark:border-slate-500",
+};
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
@@ -22,29 +42,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref,
   ) => {
-    //base styles for all buttons
-    const styles =
-      "flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none";
-
-    //variant-specific styles
-    const variants: Record<NonNullable<ButtonProps["variant"]>, string> = {
-      primary: "bg-black text-white hover:bg-gray-800",
-      outline: "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50",
-      danger: "bg-red-600 text-white hover:bg-red-700",
-      ghost: "bg-transparent text-gray-500 hover:bg-gray-100",
-    };
-
-    // spinner color depends on current variant to keep contrast
-    const spinnerClasses =
-      variant === "primary" || variant === "danger"
-        ? "border-white/80 border-t-white"
-        : "border-gray-400 border-t-gray-700";
-
     return (
       <button
         ref={ref}
         type={type}
-        className={`${styles} ${variants[variant]} ${className}`}
+        className={`${baseStyles} ${variantStyles[variant]} ${className}`}
         disabled={isLoading || disabled}
         aria-busy={isLoading || undefined}
         {...props}
@@ -52,7 +54,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {isLoading ? (
           <>
             <div
-              className={`w-5 h-5 border-2 ${spinnerClasses} border-t-transparent rounded-full animate-spin`}
+              className={`h-5 w-5 animate-spin rounded-full border-2 border-t-transparent ${spinnerVariantStyles[variant]}`}
               aria-hidden="true"
             />
             <span className="sr-only">{loadingText ?? "Loading"}</span>
