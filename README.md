@@ -27,21 +27,13 @@ user-management-dashboard/
 - Node.js 20+ (Node 22 recommended)
 - npm
 
-## Environment Variables (Backend, Optional)
-No backend `.env` file is required for local development. The backend has defaults for `PORT`, `CLIENT_URL`, and `NODE_ENV`.
+## Backend Configuration
+There is no `backend/.env` file in this project.
 
-Create `backend/.env` only when you want to override defaults:
-
-```env
-PORT=5000
-CLIENT_URL=http://localhost:3000
-NODE_ENV=development
-```
-
-Notes:
-- `PORT` defaults to `5000` if omitted.
-- `CLIENT_URL` defaults to `http://localhost:3000`.
-- `NODE_ENV` defaults to `development`.
+Backend runtime values use built-in defaults from `backend/src/config/env.ts`:
+- `PORT`: `5000`
+- `CLIENT_URL`: `http://localhost:3000`
+- `NODE_ENV`: `development`
 
 ## Environment Variables (Frontend, Optional)
 Create `frontend/.env` when you need a custom API base URL:
@@ -133,4 +125,4 @@ User records are stored in:
 
 ## Troubleshooting
 - If frontend cannot reach backend, make sure backend runs on port `5000` and `frontend/src/services/api.ts` points to the same URL.
-- If CORS issues appear, verify `CLIENT_URL` in `backend/.env`.
+- If CORS issues appear, check the `clientUrl` value in `backend/src/config/env.ts`.
