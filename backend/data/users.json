@@ -1,13 +1,5 @@
 [
   {
-    "name": "Min Khant",
-    "username": "minkhant",
-    "email": "minkhant@gmail.com",
-    "id": "a82af0ac3a43a2eb",
-    "createdAt": "2026-05-01T07:33:53.796Z",
-    "updatedAt": "2026-05-01T07:33:53.796Z"
-  },
-  {
     "name": "Swar Swar",
     "username": "wukyii",
     "email": "swarswar@gmail.com",
@@ -46,14 +38,6 @@
     "id": "9b4d7ef31c8a2056",
     "createdAt": "2026-05-01T08:24:03.000Z",
     "updatedAt": "2026-05-01T08:24:03.000Z"
-  },
-  {
-    "name": "Kyaw Zin",
-    "username": "kyawzin",
-    "email": "kyaw.zin@gmail.com",
-    "id": "4fa8c39de1276b50",
-    "createdAt": "2026-05-01T08:25:19.000Z",
-    "updatedAt": "2026-05-01T08:25:19.000Z"
   },
   {
     "name": "Ei Mon",
