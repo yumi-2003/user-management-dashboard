@@ -27,8 +27,10 @@ user-management-dashboard/
 - Node.js 20+ (Node 22 recommended)
 - npm
 
-## Environment Variables (Backend)
-Create `backend/.env` with:
+## Environment Variables (Backend, Optional)
+No backend `.env` file is required for local development. The backend has defaults for `PORT`, `CLIENT_URL`, and `NODE_ENV`.
+
+Create `backend/.env` only when you want to override defaults:
 
 ```env
 PORT=5000
@@ -38,7 +40,8 @@ NODE_ENV=development
 
 Notes:
 - `PORT` defaults to `5000` if omitted.
-- `CLIENT_URL` should match your frontend dev URL.
+- `CLIENT_URL` defaults to `http://localhost:3000`.
+- `NODE_ENV` defaults to `development`.
 
 ## Environment Variables (Frontend, Optional)
 Create `frontend/.env` when you need a custom API base URL:
