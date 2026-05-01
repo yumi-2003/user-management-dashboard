@@ -102,7 +102,7 @@ export default function Dashboard() {
   const showingTo =
     pagination.total === 0 ? 0 : showingFrom + Math.max(0, users.length - 1);
   const isDarkMode = theme === "dark";
-  const modalCopy = modalMode ? MODAL_TYPE[modalMode] : null;
+  const modalTypes = modalMode ? MODAL_TYPE[modalMode] : null;
 
   return (
     <div className="min-h-screen bg-white px-4 py-8 text-slate-900 transition-colors dark:bg-slate-950 dark:text-slate-100 sm:px-6 lg:px-8">
@@ -234,8 +234,8 @@ export default function Dashboard() {
       {/* Modal for Create/Edit */}
       {modalMode && (
         <Modal
-          title={modalCopy?.title}
-          description={modalCopy?.description}
+          title={modalTypes?.title}
+          description={modalTypes?.description}
           onClose={closeModal}
         >
           {modalMode === "view" && selectedUser ? (
