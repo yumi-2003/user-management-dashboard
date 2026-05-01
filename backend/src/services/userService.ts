@@ -74,7 +74,7 @@ const assertUniqueEmail = (users: User[], email: string, excludedUserId?: string
   });
 
   if (emailExists) {
-    throw createError("User with this email already exists", 400);
+    throw createError("Account with this email is already exist", 400);
   }
 };
 
