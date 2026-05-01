@@ -64,6 +64,7 @@ export default function Dashboard() {
   const [theme, setTheme] = useState<ThemeMode>(() => getInitialTheme());
   const [modalMode, setModalMode] = useState<ModalMode>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [confirmingUserId, setConfirmingUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const isDark = theme === "dark";
@@ -88,6 +89,18 @@ export default function Dashboard() {
 
   const closeModal = () => {
     setModalMode(null);
+  };
+
+  const handleDelete = (id: string) => {
+    setConfirmingUserId(id);
+  };
+
+  const cancelConfirm = () => setConfirmingUserId(null);
+
+  const confirmDelete = async () => {
+    if (!confirmingUserId) return;
+    await removeUser(confirmingUserId);
+    setConfirmingUserId(null);
   };
 
   const handleFormSubmit = async (formData: UserInput) => {
@@ -124,7 +137,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Toolbar */}
+        {/* searchbar + create user button */}
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="w-full flex-1">
             <SearchBar value={searchQuery} onChange={setSearchQuery} />
@@ -171,7 +184,7 @@ export default function Dashboard() {
               loading={loading}
               onView={handleView}
               onEdit={handleEdit}
-              onDelete={removeUser}
+              onDelete={handleDelete}
             />
           </div>
 
@@ -247,6 +260,23 @@ export default function Dashboard() {
               onClose={closeModal}
             />
           )}
+        </Modal>
+      )}
+      {/* Confirm delete modal */}
+      {confirmingUserId && (
+        <Modal
+          title="Delete user"
+          description="Are you sure you want to delete this user?"
+          onClose={cancelConfirm}
+        >
+          <div className="mt-4 flex justify-end gap-3">
+            <Button variant="ghost" onClick={cancelConfirm}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={confirmDelete}>
+              Delete
+            </Button>
+          </div>
         </Modal>
       )}
     </div>
