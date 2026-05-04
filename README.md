@@ -11,6 +11,36 @@ A full-stack user management dashboard built with React + TypeScript on the fron
 - Delete users
 - Light/Dark theme toggle with persistence
 
+## App Screenshots
+
+### Users List
+
+![Users list](docs/screenshots/readme-list.png)
+
+### Create User
+
+![Create user](docs/screenshots/readme-create-form.png)
+
+### Read User Details
+
+![Read user details](docs/screenshots/readme-read-view.png)
+
+### Update User
+
+![Update user](docs/screenshots/readme-update-user.png)
+
+### Delete User
+
+![Delete user confirmation](docs/screenshots/readme-delete-confirm.png)
+
+### Search Users
+
+![Search users](docs/screenshots/readme-search-users.png)
+
+### Pagination
+
+![Pagination controls](docs/screenshots/readme-pagination.png)
+
 ## Tech Stack
 
 - Frontend: React 19, Vite 8, TypeScript, Tailwind CSS v4, Axios, Lucide Icons
