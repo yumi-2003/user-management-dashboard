@@ -12,4 +12,5 @@ export const userSchema = z.object({
     .min(3, "Username must be at least 3 characters")
     .max(40, "Username must be at most 40 characters"),
   email: z.string().trim().toLowerCase().email("Invalid email address"),
+  remark: z.string().trim(),
 });

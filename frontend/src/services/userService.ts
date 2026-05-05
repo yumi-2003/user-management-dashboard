@@ -7,11 +7,11 @@ export type GetUsersParams = {
   search?: string;
 };
 
-//value has to be objects
+//value has to be objects, null is an object in javascript
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
 
-//match with user values from backend
+//match with all user values (id,name,username,email) from backend
 const isUser = (value: unknown): value is User => {
   if (!isRecord(value)) return false;
 
@@ -51,13 +51,13 @@ const toPositiveInt = (value: unknown, fallback: number) => {
   return normalized > 0 ? normalized : fallback;
 };
 
-//make page number is wthin valid range
+//make current page number is wthin valid range
 const fallbackPagination = (
   page: number,
-  limit: number,
-  total: number,
+  limit: number, //items per page
+  total: number, // total items in dataset
 ): PaginationMeta => {
-  const totalPages = total === 0 ? 1 : Math.ceil(total / limit);
+  const totalPages = total === 0 ? 1 : Math.ceil(total / limit); //page 0 doesn't make sense
   const currentPage = Math.min(Math.max(page, 1), totalPages);
 
   return {
@@ -70,7 +70,7 @@ const fallbackPagination = (
   };
 };
 
-//check parse usdata from payload is valid
+//check parse userdata from payload is valid
 const parseUserFromPayload = (payload: unknown): User => {
   if (isRecord(payload) && isUser(payload.data)) {
     return payload.data;
@@ -100,29 +100,38 @@ export const getAllUsers = async (
 
   const payload: unknown = response.data;
 
-  //parse API payload into user and pagination
+  //parse API payload into user and
+  //payload has to be an object, not null, not string, not array
   if (isRecord(payload)) {
+    //payload as array
     const users = Array.isArray(payload.data) ? (payload.data as User[]) : [];
+    //not negative , not null
     const totalFromPayload = toNonNegativeInt(payload.total, users.length);
-
+    //make default pagination safe with the function fallbackpagination
     let pagination = fallbackPagination(page, limit, totalFromPayload);
 
+    //pagination exists and it is object
     if (isRecord(payload.pagination)) {
+      //page is valid with postinve number
       const nextPage = toPositiveInt(payload.pagination.page, pagination.page);
+      // limit 1 or more than 1
       const nextLimit = toPositiveInt(
         payload.pagination.limit,
         pagination.limit,
       );
+      // not negative
       const nextTotal = toNonNegativeInt(
         payload.pagination.total,
         totalFromPayload,
       );
+
       const nextTotalPages =
         nextTotal === 0 ? 1 : Math.ceil(nextTotal / nextLimit);
       const totalPages = toPositiveInt(
         payload.pagination.totalPages,
         nextTotalPages,
       );
+      //not current page > totalPages
       const currentPage = Math.min(nextPage, totalPages);
 
       pagination = {

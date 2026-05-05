@@ -28,6 +28,8 @@ const UserTable = ({
             <th className="px-6 py-4 text-base font-semibold">Username</th>
             <th className="px-6 py-4 text-base font-semibold">Email</th>
             <th className="px-6 py-4 text-base font-semibold">Created</th>
+            <th className="px-6 py-4 text-base font-semibold">Remark</th>
+
             <th className="px-6 py-4 text-center text-base font-semibold">
               Actions
             </th>
@@ -78,6 +80,7 @@ const UserTable = ({
           <th className="px-6 py-4 text-center text-base font-semibold">
             Actions
           </th>
+          <th className="px-6 py-4 text-base font-semibold">Remark</th>
         </tr>
       </thead>
       <tbody>
@@ -137,6 +140,9 @@ const UserTable = ({
                     <TrashIcon size={15} />
                   </button>
                 </div>
+              </td>
+              <td className="px-6 py-4 text-slate-600 dark:text-slate-400">
+                {user.remark}
               </td>
             </tr>
           ))

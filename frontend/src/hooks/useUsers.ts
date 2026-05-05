@@ -48,10 +48,14 @@ export const useUsers = () => {
 
   const setPage = (page: number) => {
     const normalizedPage = Math.max(1, Math.trunc(page));
-    setPagination((prev) => ({
-      ...prev,
-      page: prev.page === normalizedPage ? prev.page : normalizedPage,
-    }));
+    setPagination((prev) =>
+    prev.page === normalizedPage
+        ? prev
+        : {
+            ...prev,
+          page: normalizedPage,
+          },
+    );
   };
 
   const setLimit = (limit: number) => {

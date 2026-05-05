@@ -17,6 +17,7 @@ const userFormSchema = z.object({
     .min(3, "Username must be at least 3 characters")
     .max(40, "Username must be at most 40 characters"),
   email: z.string().trim().email("Invalid email address"),
+  remark: z.string().trim(),
 });
 
 type UserFormValues = z.infer<typeof userFormSchema>;
@@ -43,6 +44,7 @@ const UserForm = ({ initialData, onSubmit, onClose }: UserFormProps) => {
       name: initialData?.name ?? "",
       username: initialData?.username ?? "",
       email: initialData?.email ?? "",
+      remark: initialData?.remark ?? "",
     }),
     [initialData],
   );

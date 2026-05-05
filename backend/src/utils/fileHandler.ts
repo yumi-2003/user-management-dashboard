@@ -22,8 +22,11 @@ const parseUsersJson = (raw: string): User[] => {
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? (parsed as User[]) : [];
   } catch (parseError) {
-    console.error("Invalid JSON in users file, returning empty array:", parseError);
-    return [];
+    console.error(
+      "Invalid JSON in users file, returning empty array:",
+      parseError,
+    );
+    return []; //prevent app crashed
   }
 };
 
@@ -33,6 +36,7 @@ export const readUsers = async (): Promise<User[]> => {
     const data = await fs.readFile(filePath, "utf-8");
     return parseUsersJson(data);
   } catch (error) {
+    //if file doesn't exist return empty array to avoid the app crash on first run
     if ((error as NodeJS.ErrnoException).code === "ENOENT") {
       return [];
     }

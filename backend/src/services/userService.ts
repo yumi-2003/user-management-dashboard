@@ -35,11 +35,12 @@ const MAX_LIMIT = 100;
 
 const normalizeEmail = (value: string) => value.trim().toLowerCase();
 
-const normalizeSearchQuery = (value?: string) => value?.trim().toLowerCase() ?? "";
+const normalizeSearchQuery = (value?: string) =>
+  value?.trim().toLowerCase() ?? "";
 
 const matchesSearch = (user: User, query: string): boolean => {
-  return [user.name, user.username, user.email].some((fieldValue) =>
-    fieldValue.toLowerCase().includes(query),
+  return [user.name, user.username, user.email, user.remark].some(
+    (fieldValue) => fieldValue.toLowerCase().includes(query.toLowerCase()),
   );
 };
 
@@ -64,9 +65,15 @@ const getExistingUserById = (users: User[], id: string): User => {
   return foundUser;
 };
 
-const assertUniqueEmail = (users: User[], email: string, excludedUserId?: string): void => {
+//no users can share the same email, but in update, user can keep their own email
+const assertUniqueEmail = (
+  users: User[],
+  email: string,
+  excludedUserId?: string,
+): void => {
   const normalizedTargetEmail = normalizeEmail(email);
   const emailExists = users.some((user) => {
+    //skip current user for update
     if (excludedUserId && user.id === excludedUserId) {
       return false;
     }
@@ -74,7 +81,7 @@ const assertUniqueEmail = (users: User[], email: string, excludedUserId?: string
   });
 
   if (emailExists) {
-    throw createError("Account with this email is already exist", 400);
+    throw createError("An account with this email is already exist", 400);
   }
 };
 
@@ -82,7 +89,10 @@ export const getAllUsers = async (
   options: GetUsersOptions = {},
 ): Promise<PaginatedUsersResult> => {
   const { searchQuery, page, limit } = options;
-  const normalizedLimit = Math.min(toPositiveInt(limit, DEFAULT_LIMIT), MAX_LIMIT);
+  const normalizedLimit = Math.min(
+    toPositiveInt(limit, DEFAULT_LIMIT),
+    MAX_LIMIT,
+  );
   const normalizedPage = toPositiveInt(page, DEFAULT_PAGE);
   const normalizedSearchQuery = normalizeSearchQuery(searchQuery);
 
@@ -95,15 +105,18 @@ export const getAllUsers = async (
   const totalPages = total === 0 ? 1 : Math.ceil(total / normalizedLimit);
   const currentPage = Math.min(normalizedPage, totalPages);
   const startIndex = (currentPage - 1) * normalizedLimit;
-  const paginatedUsers = filteredUsers.slice(startIndex, startIndex + normalizedLimit);
+  const paginatedUsers = filteredUsers.slice(
+    startIndex,
+    startIndex + normalizedLimit,
+  );
 
   return {
     data: paginatedUsers,
     pagination: {
       page: currentPage,
       limit: normalizedLimit,
-      total,
-      totalPages,
+      total, //total user
+      totalPages, //total page
       hasNextPage: currentPage < totalPages,
       hasPrevPage: currentPage > 1,
     },

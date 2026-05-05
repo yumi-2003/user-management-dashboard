@@ -12,6 +12,7 @@ type AsyncRequestHandler = (
 
 const DEFAULT_ERROR_MESSAGE = "Something went wrong";
 
+//status code for errorHandler global middleware
 const inferStatusCode = (err: AppError): number => {
   if (err.statusCode) {
     return err.statusCode;

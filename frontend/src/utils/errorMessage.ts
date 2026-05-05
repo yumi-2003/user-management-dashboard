@@ -24,7 +24,7 @@ export function toClientErrorMessage(err: unknown, fallback: string) {
     (normalizedMessage.includes("already exist") ||
       normalizedMessage.includes("already exists"))
   ) {
-    return "Account with this email is already exist";
+    return "An account with this email is already exist";
   }
 
   if (
