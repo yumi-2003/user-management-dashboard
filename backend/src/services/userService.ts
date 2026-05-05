@@ -39,8 +39,11 @@ const normalizeSearchQuery = (value?: string) =>
   value?.trim().toLowerCase() ?? "";
 
 const matchesSearch = (user: User, query: string): boolean => {
-  return [user.name, user.username, user.email, user.remark].some(
-    (fieldValue) => fieldValue.toLowerCase().includes(query.toLowerCase()),
+  const normalizedQuery = query.toLowerCase();
+  const searchableFields = [user.name, user.username, user.email, user.remark];
+
+  return searchableFields.some((fieldValue) =>
+    String(fieldValue ?? "").toLowerCase().includes(normalizedQuery),
   );
 };
 
